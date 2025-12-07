@@ -40,53 +40,15 @@ Redis Stack (Vector KNN) is used for caching. It runs as a separate Docker servi
 
 ## Models
 The `models/` folder already contains necessary artifacts:
-- `arcfaceresnet100-8.onnx` — ArcFace ResNet100
-- `face_landmarker.task` — model for MediaPipe FaceAligner
-- (optional) OpenVINO IR (xml/bin) for alternate scenarios
+- `arcfaceresnet100-8.onnx` — ArcFace ResNet100 (https://github.com/openvinotoolkit/open_model_zoo/blob/master/models/public/face-recognition-resnet100-arcface-onnx/README.md)
+- `face_landmarker.task` — model for MediaPipe FaceAligner (https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task)
 
 Model paths are hard-coded:
 - ArcFace: `models/arcfaceresnet100-8.onnx` (see `src/recognition.py`)
 - FaceAligner: `models/face_landmarker.task` (see `src/detection.py`)
 
 ## Quick start (Windows and cross-platform)
-Commands below show both manual steps and the provided convenience scripts.
-
-1) Create and activate a virtual environment, then install dependencies (manual — cmd.exe):
-
-```batch
-python -m venv .venv
-.venv\Scripts\activate
-pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-PowerShell equivalent (manual):
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-Bash (Linux / macOS) equivalent:
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-2) Start Redis Stack (cache) via Docker Compose.
-
-Manual (from project root):
-
-```batch
-docker compose -f docker\docker-compose.yaml up -d --build
-```
-
-Or use the provided convenience scripts which run Docker Compose, ensure a virtualenv exists and is activated, install requirements if needed, set `PYTHONPATH`, and finally start the application:
+Use the provided convenience scripts which run Docker Compose, ensure a virtualenv exists and is activated, install requirements if needed, set `PYTHONPATH`, and finally start the application:
 
 - PowerShell (recommended on Windows):
 
@@ -107,30 +69,6 @@ Notes:
 - `scripts/run.sh` does the same for Unix-like shells (bash).
 - If you prefer to manage services manually, you can run the `docker compose` command above and then start the app manually (see Step 3).
 
-3) Run the application (manual — cmd.exe):
-
-```batch
-set PYTHONPATH=%CD%
-.venv\Scripts\activate
-python cmd\main.py
-```
-
-PowerShell (manual):
-
-```powershell
-$env:PYTHONPATH = (Get-Location).Path
-.\.venv\Scripts\Activate.ps1
-python cmd\main.py
-```
-
-Bash (manual):
-
-```bash
-export PYTHONPATH="$PWD"
-source .venv/bin/activate
-python3 cmd/main.py
-```
-
 ## Configuration
 - FPS: change in `cmd/main.py` (variable `fps`)
 - OpenVINO device: in `src/recognition.py` when creating `RecognitionArcFace(..., device='GPU' | 'CPU')`
@@ -143,10 +81,10 @@ On a cache miss, `EmbeddingValidation` calls `POST /api/v1/embedding/validate`:
 - Request body (JSON):
 ```json
 {
-  "vector": [float, float, ..., float]
+  "vector": [float, float, ..., float] 
 }
 ```
-- Response handling: `200 OK` is treated as “found” (response text is logged). Any other code is treated as “embedding not found”.
+- Response handling: `200 OK` is treated as “found”. Any other code is treated as “embedding not found”.
 
 ## Cache details and similarity threshold
 - Index: `FLAT` vector, `COSINE`
@@ -161,7 +99,12 @@ On a cache miss, `EmbeddingValidation` calls `POST /api/v1/embedding/validate`:
 - `src/recognition.py` — ArcFace inference (OpenVINO), embedding normalization
 - `src/validation.py` — cache lookup and API call
 - `src/cache.py` — Redis Stack KNN (index, storage, search)
+- `src/config.py` — runtime configuration and constants
+- `src/utils.py` — utility helpers (image processing, I/O, logging)
 - `api/access_system.py` — REST API wrapper for validation
-- `docker/docker-compose.yaml` — Redis Stack
+- `docker/docker-compose.yaml` — Redis Stack and supporting services
 - `models/` — model files
-- `run.ps1` — convenient PowerShell runner
+- `scripts/` — convenience runners (`run.ps1`, `run.sh`)
+- `tests/` — unit and integration tests
+- `requirements.txt` — Python dependencies
+- `README.md` — project documentation (this file)
