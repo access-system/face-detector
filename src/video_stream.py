@@ -63,7 +63,7 @@ class VideoStream:
                 cv2.putText(frame, *self.access_statuses[access_status])
 
                 if access_status == 0:
-                    cv2.putText(frame, f"{name} ({accuracy:.2f}%)", (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                    cv2.putText(frame, f"{accuracy:.2f}%", (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
             else:
                 frame = cv2.flip(default_frame, 1)
                 cv2.putText(frame, *self.access_statuses[2])
