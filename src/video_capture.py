@@ -9,7 +9,7 @@ class VideoCapture:
         self.stop_event = stop_event
         self.log = log
 
-        self.cap = cv2.VideoCapture(device)
+        self.cap = cv2.VideoCapture(0)
         self.fps = fps
 
         self.lock = lock
